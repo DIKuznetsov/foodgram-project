@@ -2,12 +2,18 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from . import views
-from api.views import (AddSubscriptions, AddToFavorites, RemoveFromFavorites,
-                       RemoveSubscriptions, IngredientViewSet, AddPurchases,
-                       RemovePurchases)
+from api.views import (IngredientViewSet, AddRemoveFavoritesViewSet,
+                       AddRemoveSubscriptionsViewSet,
+                       AddRemovePurchasesViewSet)
 
-router = DefaultRouter(trailing_slash=False)
+router = DefaultRouter()
 router.register(r'ingredients', IngredientViewSet, basename='ingredients')
+router.register(r'favorites', AddRemoveFavoritesViewSet,
+                basename='favorites')
+router.register(r'subscriptions', AddRemoveSubscriptionsViewSet,
+                basename='subscriptions')
+router.register(r'purchases', AddRemovePurchasesViewSet,
+                basename='purchases')
 
 
 views_patterns = [
@@ -30,12 +36,6 @@ views_patterns = [
 ]
 
 api_patterns = [
-    path('v1/favorites/', AddToFavorites.as_view()),
-    path('v1/favorites/<int:pk>/', RemoveFromFavorites.as_view()),
-    path('v1/subscriptions/', AddSubscriptions.as_view()),
-    path('v1/subscriptions/<int:pk>/', RemoveSubscriptions.as_view()),
-    path('v1/purchases/', AddPurchases.as_view()),
-    path('v1/purchases/<int:pk>/', RemovePurchases.as_view()),
     path('v1/', include(router.urls)),
 ]
 

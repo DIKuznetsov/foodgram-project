@@ -1,6 +1,5 @@
 from typing import Optional
 
-from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Exists, OuterRef
@@ -34,11 +33,22 @@ class Tag(models.Model):
         LUNCH = 'Обед', _('Обед')
         DINNER = 'Ужин', _('Ужин')
 
-    title = models.CharField(max_length=10, choices=Title.choices)
-    color = models.CharField(max_length=50)
+    title = models.CharField(
+        max_length=10,
+        choices=Title.choices,
+        verbose_name='Название'
+    )
+    color = models.CharField(
+        max_length=50,
+        verbose_name='Цвет'
+    )
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
 
 
 class RecipeQuerySet(models.QuerySet):
@@ -165,19 +175,18 @@ class Subscription(models.Model):
     user = models.ForeignKey(
         User,
         related_name='subscriptions',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
     )
     author = models.ForeignKey(
         User,
         related_name='subscribers',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name='Автор'
     )
 
-    def clean(self):
-        if self.user == self.author:
-            raise ValidationError(
-                'Нельзя подписаться на самого себя!'
-            )
+    def __str__(self):
+        return f'{self.user} подписан на {self.author}'
 
     class Meta:
         constraints = [
@@ -187,6 +196,8 @@ class Subscription(models.Model):
             )
         ]
         ordering = ('author', )
+        verbose_name = 'Объект подписки'
+        verbose_name_plural = 'Объекты подписки'
 
 
 class Cart(models.Model):
@@ -205,3 +216,8 @@ class Cart(models.Model):
 
     def __str__(self):
         return f'{self.recipe} в списке покупок у {self.user}'
+
+    class Meta:
+        ordering = ('recipe',)
+        verbose_name = 'Объект в списке покупок'
+        verbose_name_plural = 'Объекты в списке покупок'
