@@ -6,6 +6,7 @@ from django.views.generic import DetailView, ListView
 
 from .models import Recipe, User, RecipeIngredient, Ingredient, Cart, Tag
 from .forms import RecipeForm
+from foodgram import settings
 
 
 class IsFavoriteMixin:
@@ -20,7 +21,7 @@ class IsFavoriteMixin:
 
 class BaseRecipeListView(IsFavoriteMixin, ListView):
     context_object_name = 'recipe_list'
-    paginate_by = 6
+    paginate_by = settings.PAGE_SIZE
     page_title = None
 
     def get_context_data(self, **kwargs):
@@ -58,7 +59,7 @@ class FavoriteView(LoginRequiredMixin, BaseRecipeListView):
 
 class SubscriptionView(LoginRequiredMixin, ListView):
     page_title = 'Мои подписки'
-    template_name = 'recipes/myFollow.html'
+    template_name = 'recipes/subscription_list.html'
     paginate_by = 6
 
     def get_queryset(self):
@@ -198,7 +199,7 @@ def purchases_download(request):
     d = {}
     content = ''
     for ingredient in ingredients_in_recipes:
-        if ingredient.ingredient.title in d.keys():
+        if ingredient.ingredient.title in d:
             d[ingredient.ingredient.title][2] += ingredient.amount
         else:
             d[ingredient.ingredient.title] = [ingredient.ingredient.title,
@@ -206,7 +207,7 @@ def purchases_download(request):
                                               ingredient.amount]
 
     for value in d.values():
-        content += '{} ({}) - {}\n'.format(value[0], value[1], value[2])
+        content += f'{value[0]} ({value[1]}) - {value[2]}\n'
     filename = 'purchases.txt'
     response = HttpResponse(content, content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename={0}'.format(

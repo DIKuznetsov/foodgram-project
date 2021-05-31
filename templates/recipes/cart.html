@@ -18,7 +18,9 @@
             {% for recipe in page_obj %}
             <li class="shopping-list__item" data-id="{{ recipe_id }}">
                 <div class="recipe recipe_reverse">
-                    <img src="{{ recipe.image.url }}" alt="{{ recipe.description }}" class="recipe__image recipe__image_big">
+                    {% if recipe.image %}
+                        <img src="{{ recipe.image.url }}" alt="{{ recipe.description }}" class="recipe__image recipe__image_big">
+                    {% endif %}
                     <h3 class="recipe__title">{{ recipe.name }}</h3>
                     <p class="recipe__text"><span class="icon-time"></span>{{ recipe.cooking_time }} мин.</p>
                 </div>
@@ -30,7 +32,7 @@
     </div>
 
     {% if page_obj.has_other_pages %}
-        {% include 'recipes/includes/paginator.html' with items=page_obj paginator=paginator %}
+        {% include 'recipes/includes/paginator.html' with paginator=paginator %}
     {% endif %}
 
 {% endblock %}

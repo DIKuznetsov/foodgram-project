@@ -1,66 +1,69 @@
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from django.http import JsonResponse
 from rest_framework import mixins, viewsets
 
 from recipes.models import Favorite, Subscription, Ingredient, Cart
 from .serializers import IngredientSerializer
 
+SUCCESS = JsonResponse({'success': True})
+FAILURE = JsonResponse({'success': False})
 
-class AddToFavorites(APIView):
 
-    def post(self, request, format=None):
-        Favorite.objects.get_or_create(
+class AddRemoveFavoritesViewSet(viewsets.GenericViewSet):
+
+    def create(self, request, format=None):
+        obj, created = Favorite.objects.get_or_create(
             user=request.user,
             recipe_id=request.data['id'],
         )
+        if obj:
+            return FAILURE
+        return SUCCESS
 
-        return Response({'success': True}, status=status.HTTP_200_OK)
-
-
-class RemoveFromFavorites(APIView):
-
-    def delete(self, request, pk, format=None):
+    def destroy(self, request, pk, format=None):
         Favorite.objects.filter(recipe_id=pk, user=request.user).delete()
-        return Response({'success': True}, status=status.HTTP_200_OK)
+        if Favorite.objects.filter(recipe_id=pk, user=request.user).exists():
+            return FAILURE
+        return SUCCESS
 
 
-class AddSubscriptions(APIView):
+class AddRemoveSubscriptionsViewSet(viewsets.GenericViewSet):
 
-    def post(self, request, format=None):
-        Subscription.objects.get_or_create(
+    def create(self, request, format=None):
+        obj, created = Subscription.objects.get_or_create(
             user=request.user,
             author_id=request.data['id'],
         )
+        if obj:
+            return FAILURE
+        return SUCCESS
 
-        return Response({'success': True}, status=status.HTTP_200_OK)
-
-
-class RemoveSubscriptions(APIView):
-
-    def delete(self, request, pk, format=None):
+    def destroy(self, request, pk, format=None):
         Subscription.objects.filter(author_id=pk,
                                     user=request.user).delete()
-        return Response({'success': True}, status=status.HTTP_200_OK)
+        if Subscription.objects.filter(author_id=pk,
+                                       user=request.user).exists():
+            return FAILURE
+        return SUCCESS
 
 
-class AddPurchases(APIView):
+class AddRemovePurchasesViewSet(viewsets.GenericViewSet):
 
-    def post(self, request, format=None):
-        Cart.objects.get_or_create(
+    def create(self, request, format=None):
+        obj, created = Cart.objects.get_or_create(
             user=request.user,
             recipe_id=request.data['id'],
         )
+        if obj:
+            return FAILURE
+        return SUCCESS
 
-        return Response({'success': True}, status=status.HTTP_200_OK)
-
-
-class RemovePurchases(APIView):
-
-    def delete(self, request, pk, format=None):
+    def destroy(self, request, pk, format=None):
         Cart.objects.filter(recipe_id=pk,
                             user=request.user).delete()
-        return Response({'success': True}, status=status.HTTP_200_OK)
+        if Cart.objects.filter(recipe_id=pk,
+                            user=request.user).exists():
+            return FAILURE
+        return SUCCESS
 
 
 class IngredientViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
