@@ -20,7 +20,7 @@ class AddRemoveViewSet(viewsets.GenericViewSet):
             self.qs.create(user=request.user,
                            **{self.field_id: request.data['id']})
             return SUCCESS
-        except:
+        except 'Can not do that':
             return CREATE_FAILURE
 
     def destroy(self, request, pk, format=None):
