@@ -1,69 +1,49 @@
 from django.http import JsonResponse
 from rest_framework import mixins, viewsets
+from rest_framework import status
 
 from recipes.models import Favorite, Subscription, Ingredient, Cart
 from .serializers import IngredientSerializer
 
 SUCCESS = JsonResponse({'success': True})
-FAILURE = JsonResponse({'success': False})
+CREATE_FAILURE = JsonResponse({'success': False})
+DELETE_FAILURE = JsonResponse({'success': False},
+                              status=status.HTTP_404_NOT_FOUND)
 
 
-class AddRemoveFavoritesViewSet(viewsets.GenericViewSet):
-
-    def create(self, request, format=None):
-        obj, created = Favorite.objects.get_or_create(
-            user=request.user,
-            recipe_id=request.data['id'],
-        )
-        if obj:
-            return FAILURE
-        return SUCCESS
-
-    def destroy(self, request, pk, format=None):
-        Favorite.objects.filter(recipe_id=pk, user=request.user).delete()
-        if Favorite.objects.filter(recipe_id=pk, user=request.user).exists():
-            return FAILURE
-        return SUCCESS
-
-
-class AddRemoveSubscriptionsViewSet(viewsets.GenericViewSet):
+class AddRemoveViewSet(viewsets.GenericViewSet):
+    qs = None
+    field_id = None
 
     def create(self, request, format=None):
-        obj, created = Subscription.objects.get_or_create(
-            user=request.user,
-            author_id=request.data['id'],
-        )
-        if obj:
-            return FAILURE
-        return SUCCESS
+        try:
+            self.qs.create(user=request.user,
+                           **{self.field_id: request.data['id']})
+            return SUCCESS
+        except:
+            return CREATE_FAILURE
 
     def destroy(self, request, pk, format=None):
-        Subscription.objects.filter(author_id=pk,
-                                    user=request.user).delete()
-        if Subscription.objects.filter(author_id=pk,
-                                       user=request.user).exists():
-            return FAILURE
-        return SUCCESS
+        deleted, _ = self.qs.filter(user=request.user,
+                                    **{self.field_id: pk}).delete()
+        if deleted:
+            return SUCCESS
+        return DELETE_FAILURE
 
 
-class AddRemovePurchasesViewSet(viewsets.GenericViewSet):
+class AddRemoveFavoritesViewSet(AddRemoveViewSet):
+    qs = Favorite.objects.all()
+    field_id = 'recipe_id'
 
-    def create(self, request, format=None):
-        obj, created = Cart.objects.get_or_create(
-            user=request.user,
-            recipe_id=request.data['id'],
-        )
-        if obj:
-            return FAILURE
-        return SUCCESS
 
-    def destroy(self, request, pk, format=None):
-        Cart.objects.filter(recipe_id=pk,
-                            user=request.user).delete()
-        if Cart.objects.filter(recipe_id=pk,
-                            user=request.user).exists():
-            return FAILURE
-        return SUCCESS
+class AddRemoveSubscriptionsViewSet(AddRemoveViewSet):
+    qs = Subscription.objects.all()
+    field_id = 'author_id'
+
+
+class AddRemovePurchasesViewSet(AddRemoveViewSet):
+    qs = Cart.objects.all()
+    field_id = 'recipe_id'
 
 
 class IngredientViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

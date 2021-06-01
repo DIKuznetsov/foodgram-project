@@ -218,6 +218,12 @@ class Cart(models.Model):
         return f'{self.recipe} в списке покупок у {self.user}'
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_purchase'
+            )
+        ]
         ordering = ('recipe',)
         verbose_name = 'Объект в списке покупок'
         verbose_name_plural = 'Объекты в списке покупок'

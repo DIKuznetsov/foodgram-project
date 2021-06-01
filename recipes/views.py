@@ -206,8 +206,8 @@ def purchases_download(request):
                                               ingredient.ingredient.unit,
                                               ingredient.amount]
 
-    for value in d.values():
-        content += f'{value[0]} ({value[1]}) - {value[2]}\n'
+    for title, unit, amount in d.values():
+        content += f'{title} ({unit}) - {amount}\n'
     filename = 'purchases.txt'
     response = HttpResponse(content, content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename={0}'.format(
