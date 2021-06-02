@@ -13,13 +13,17 @@ class IsFavoriteMixin:
 
     def get_queryset(self):
         qs = super().get_queryset()
-        qs = (qs.select_related('author').with_is_favorite(
-            user_id=self.request.user.id))
+        qs = (
+            qs
+            .select_related('author')
+            .with_is_favorite(user_id=self.request.user.id)
+        )
 
         return qs
 
 
 class BaseRecipeListView(IsFavoriteMixin, ListView):
+    queryset = Recipe.objects.all()
     context_object_name = 'recipe_list'
     paginate_by = settings.PAGE_SIZE
     page_title = None

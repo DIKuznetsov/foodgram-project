@@ -30,8 +30,6 @@ def all_tags(value):
 
 @register.filter
 def pagination(request, page):
-    print('!!', request.GET)
     request_copy = request.GET.copy()
     request_copy["page"] = page
-    print(request_copy)
     return request_copy.urlencode()
