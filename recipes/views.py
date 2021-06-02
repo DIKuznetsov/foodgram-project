@@ -38,7 +38,7 @@ class BaseRecipeListView(IsFavoriteMixin, ListView):
         qs = super().get_queryset()
         tags = self.request.GET.getlist('tag')
         if tags:
-            qs = qs.filter(tags__display_name_in=tags).distinct()
+            qs = qs.filter(tags__title__in=tags).distinct()
         return qs
 
 
@@ -81,7 +81,7 @@ class ProfileView(BaseRecipeListView):
         tags = self.request.GET.getlist('tag')
         qs = qs.filter(author=self.user)
         if tags:
-            qs = qs.filter(tags__display_name_in=tags).distinct()
+            qs = qs.filter(tags__title__in=tags).distinct()
         return qs
 
     def get_context_data(self, **kwargs):
