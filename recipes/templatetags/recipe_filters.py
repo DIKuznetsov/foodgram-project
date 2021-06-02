@@ -1,40 +1,37 @@
 from django import template
+from recipes.models import Tag
+
 
 register = template.Library()
 
 
-@register.simple_tag
-def page_url(value, field_name, urlencode=None):
-    url = '?{}={}'.format(field_name, value)
-
-    if urlencode:
-        querystring = urlencode.split('&')
-        filtered_querystring = filter(lambda p: p.split('=')[0] != field_name,
-                                      querystring)
-        encoded_querystring = '&'.join(filtered_querystring)
-        url = '{}&{}'.format(url, encoded_querystring)
-
-    return url
+@register.filter
+def get_tags(request):
+    return request.getlist("tag")
 
 
-@register.simple_tag
-def recipe_url(value, field_name, urlencode=None):
-    url = '?{}={}'.format(field_name, value)
-    tag = '{}={}'.format(field_name, value)
+@register.filter
+def tag_link(request, tag):
+    request_copy = request.GET.copy()
+    request_copy["page"] = "1"
+    tags = request_copy.getlist("tag")
+    if tag.display_name in tags:
+        tags.remove(tag.display_name)
+        request_copy.setlist("tag", tags)
+    else:
+        request_copy.appendlist("tag", tag.display_name)
+    return request_copy.urlencode()
 
-    if urlencode:
-        querystring = urlencode.split('&')
-        if querystring.count(tag) >= 1:
-            querystring.remove(tag)
-            filtered_querystring = filter(lambda p: p.split('=')[1] != value,
-                                          querystring)
-            encoded_querystring = '&'.join(filtered_querystring)
-            url = '?{}'.format(encoded_querystring)
-            return url
 
-        filtered_querystring = filter(lambda p: p.split('=')[1] != value,
-                                      querystring)
-        encoded_querystring = '&'.join(filtered_querystring)
-        url = '{}&{}'.format(url, encoded_querystring)
+@register.filter
+def all_tags(value):
+    return Tag.objects.all()
 
-    return url
+
+@register.filter
+def pagination(request, page):
+    print('!!', request.GET)
+    request_copy = request.GET.copy()
+    request_copy["page"] = page
+    print(request_copy)
+    return request_copy.urlencode()

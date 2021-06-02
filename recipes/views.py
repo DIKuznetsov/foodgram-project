@@ -35,10 +35,11 @@ class BaseRecipeListView(IsFavoriteMixin, ListView):
         return self.page_title
 
     def get_queryset(self):
-        tag = self.request.GET.get('tag', None)
-        if tag is None:
-            return Recipe.objects.all()
-        return Recipe.objects.filter(tags__id=tag)
+        qs = super().get_queryset()
+        tags = self.request.GET.getlist('tag')
+        if tags:
+            qs = qs.filter(tags__display_name_in=tags).distinct()
+        return qs
 
 
 class IndexView(BaseRecipeListView):
@@ -77,8 +78,10 @@ class ProfileView(BaseRecipeListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        tags = self.request.GET.getlist('tag')
         qs = qs.filter(author=self.user)
-
+        if tags:
+            qs = qs.filter(tags__display_name_in=tags).distinct()
         return qs
 
     def get_context_data(self, **kwargs):
