@@ -106,6 +106,7 @@ class RecipeDetailView(IsFavoriteMixin, DetailView):
         qs = (qs.prefetch_related(
             'recipe_ingredients__ingredient').with_is_favorite(
             user_id=self.request.user.id))
+
         return qs
 
 
@@ -140,8 +141,12 @@ def parse_ingredients(request):
 
 @login_required
 def new_recipe(request):
+    ERROR = 'Необходимо добавить ингридиенты'
     form = RecipeForm(request.POST or None, files=request.FILES or None)
     ingredients = parse_ingredients(request)
+    if not ingredients:
+        return render(request, 'recipes/new_recipe.html',
+                      {'form': form, 'error': ERROR})
     if not form.is_valid():
         return render(request, 'recipes/new_recipe.html', {'form': form})
     recipe = form.save(commit=False)
@@ -164,10 +169,17 @@ def new_recipe(request):
 
 @login_required
 def recipe_edit(request, pk):
+    ERROR = 'Необходимо добавить ингридиенты'
     recipe = get_object_or_404(Recipe, pk=pk)
     form = RecipeForm(request.POST or None, files=request.FILES or None,
                       instance=recipe)
     ingredients = parse_ingredients(request)
+    if not ingredients:
+        return render(
+            request,
+            'recipes/recipe_edit.html',
+            {'form': form, 'recipe': recipe, 'error': ERROR}
+        )
     if not form.is_valid():
         return render(
             request,

@@ -6,9 +6,7 @@ from recipes.models import Favorite, Subscription, Ingredient, Cart
 from .serializers import IngredientSerializer
 
 SUCCESS = JsonResponse({'success': True})
-CREATE_FAILURE = JsonResponse({'success': False})
-DELETE_FAILURE = JsonResponse({'success': False},
-                              status=status.HTTP_404_NOT_FOUND)
+FAILURE = JsonResponse({'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddRemoveViewSet(viewsets.GenericViewSet):
@@ -20,15 +18,15 @@ class AddRemoveViewSet(viewsets.GenericViewSet):
             self.qs.create(user=request.user,
                            **{self.field_id: request.data['id']})
             return SUCCESS
-        except 'Can not do that':
-            return CREATE_FAILURE
+        except:
+            return FAILURE
 
     def destroy(self, request, pk, format=None):
         deleted, _ = self.qs.filter(user=request.user,
                                     **{self.field_id: pk}).delete()
         if deleted:
             return SUCCESS
-        return DELETE_FAILURE
+        return FAILURE
 
 
 class AddRemoveFavoritesViewSet(AddRemoveViewSet):

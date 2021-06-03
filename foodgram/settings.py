@@ -120,7 +120,10 @@ REST_FRAMEWORK = {
     )
 }
 
-EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'finalyapraktikumproject@gmail.com'
+EMAIL_HOST_PASSWORD = 'finalyapraktikumproject1!'
 
 PAGE_SIZE = 6

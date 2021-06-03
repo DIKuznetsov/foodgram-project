@@ -62,9 +62,7 @@
                 </li>
                 <li class="single-card__item">
                     {% if recipe.author != request.user %}
-                        <div class="card-user__footer">
-                            <button class="button button_style_light-blue button_size_auto" name="subscribe">Отписаться</button>
-                        </div>
+                        <li class="single-card__item"><button class="button button_style_light-blue button_size_subscribe" name="subscribe" data-out>Подписаться на автора</button></li>
                     {% endif %}
                 </li>
              </ul>
