@@ -76,30 +76,47 @@ class ProfileView(BaseRecipeListView):
     template_name = 'recipes/profile_recipe_list.html'
 
     def get(self, request, *args, **kwargs):
-        self.user = get_object_or_404(User, username=kwargs.get('username'))
+        self.author = get_object_or_404(User, username=kwargs.get('username'))
 
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = super().get_queryset()
         tags = self.request.GET.getlist('tag')
-        qs = qs.filter(author=self.user)
+        qs = qs.filter(author=self.author)
         if tags:
             qs = qs.filter(tags__title__in=tags).distinct()
         return qs
 
     def get_context_data(self, **kwargs):
-        kwargs.update({'author': self.user})
+        subscription = self.author.subscribers.filter(
+            user=self.request.user).exists()
+        recipes_count = self.author.recipes.count() - 3
+        kwargs.update({'author': self.author, 'subscription': subscription,
+                       'recipes_count': recipes_count})
         context = super().get_context_data(**kwargs)
         return context
 
     def _get_page_title(self):
-        return self.user.get_full_name()
+        return self.author.get_full_name()
 
 
 class RecipeDetailView(IsFavoriteMixin, DetailView):
     queryset = Recipe.objects.all()
     template_name = 'recipes/recipe_detail.html'
+
+    def get(self, request, *args, **kwargs):
+        recipe = get_object_or_404(Recipe, id=kwargs.get('pk'))
+        self.author = recipe.author
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        subscription = self.author.subscribers.filter(
+            user=self.request.user).exists()
+        kwargs.update({'author': self.author, 'subscription': subscription})
+        context = super().get_context_data(**kwargs)
+        return context
 
     def get_queryset(self):
         qs = super().get_queryset()

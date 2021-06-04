@@ -17,7 +17,7 @@
     </div>
 
     <div class="card-list">
-            {% for user in page_obj %}
+        {% for user in page_obj %}
             <div class="card-user" data-author="{{ user.id }}">
                 <div class="card-user__header">
                     <h2 class="card-user__title">{% firstof user.get_full_name user.username %}</h2>
@@ -36,7 +36,7 @@
                         </li>
                         {% endfor %}
                         <li class="card-user__item">
-                            <a href="{% url 'profile' user.username %}" class="card-user__link link">Еще {{ user.recipes.all.count }} рецептов...</a>
+                            <a href="{% url 'profile' user.username %}" class="card-user__link link">Еще {{ user.recipes.count|add:'-3' }} рецептов...</a>
                         </li>
                     </ul>
                 </div>

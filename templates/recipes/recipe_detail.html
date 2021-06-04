@@ -53,19 +53,31 @@
                     {% endif %}
                 </ul>
             </div>
-             <ul class="single-card__items">
-                <li class="single-card__item">
-                    <button class="button button_style_blue" name="purchases" data-out>
-                        <span class="icon-plus"></span>
-                        Добавить в покупки
-                    </button>
-                </li>
-                <li class="single-card__item">
-                    {% if recipe.author != request.user %}
-                        <li class="single-card__item"><button class="button button_style_light-blue button_size_subscribe" name="subscribe" data-out>Подписаться на автора</button></li>
-                    {% endif %}
-                </li>
-             </ul>
+            {% if recipe.author != request.user and request.user.is_authenticated %}
+                 <ul class="single-card__items">
+                    <li class="single-card__item">
+                        <button class="button button_style_blue" name="purchases" data-out>
+                            <span class="icon-plus"></span>
+                            Добавить в покупки
+                        </button>
+                    </li>
+                    <li class="single-card__item">
+                        {% if subscription %}
+                            <li class="single-card__item">
+                                <button class="button button_style_light-blue button_size_subscribe" name="subscribe">
+                                    Отписаться
+                                </button>
+                            </li>
+                        {% else %}
+                            <li class="single-card__item">
+                                <button class="button button_style_light-blue button_size_subscribe" name="subscribe" data-out>
+                                    Подписаться на автора
+                                </button>
+                            </li>
+                        {% endif %}
+                    </li>
+                 </ul>
+            {% endif %}
 
             <div class="single-card__section">
                 <h3 class="single-card__section-title">Ингредиенты:</h3>
