@@ -91,9 +91,7 @@ class ProfileView(BaseRecipeListView):
     def get_context_data(self, **kwargs):
         subscription = self.author.subscribers.filter(
             user=self.request.user).exists()
-        recipes_count = self.author.recipes.count() - 3
-        kwargs.update({'author': self.author, 'subscription': subscription,
-                       'recipes_count': recipes_count})
+        kwargs.update({'author': self.author, 'subscription': subscription})
         context = super().get_context_data(**kwargs)
         return context
 
@@ -246,6 +244,5 @@ def purchases_download(request):
         content += f'{title} ({unit}) - {amount}\n'
     filename = 'purchases.txt'
     response = HttpResponse(content, content_type='text/plain')
-    response['Content-Disposition'] = 'attachment; filename={0}'.format(
-        filename)
+    response['Content-Disposition'] = f'attachment; filename={filename}'
     return response

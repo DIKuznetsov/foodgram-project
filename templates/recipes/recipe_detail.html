@@ -62,19 +62,7 @@
                         </button>
                     </li>
                     <li class="single-card__item">
-                        {% if subscription %}
-                            <li class="single-card__item">
-                                <button class="button button_style_light-blue button_size_subscribe" name="subscribe">
-                                    Отписаться
-                                </button>
-                            </li>
-                        {% else %}
-                            <li class="single-card__item">
-                                <button class="button button_style_light-blue button_size_subscribe" name="subscribe" data-out>
-                                    Подписаться на автора
-                                </button>
-                            </li>
-                        {% endif %}
+                        {% include 'recipes/includes/subscribe_button.html' %}
                     </li>
                  </ul>
             {% endif %}
